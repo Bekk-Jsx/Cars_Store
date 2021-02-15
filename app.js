@@ -5,6 +5,7 @@ const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
 const userRouter = require('./Router/userRoutes');
+const sectionRouter = require('./Router/sectionRoutes');
 
 require("dotenv").config()
 
@@ -24,6 +25,7 @@ app.use(
 // Routes  
 
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/sections', sectionRouter);
 
 
 
