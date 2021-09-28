@@ -4,14 +4,26 @@ const validator = require('validator');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
-    name: {
+    firstname: {
         type: String,
-        required: [true, 'Please tell us your name!']
+        required: [true, 'Please tell us your first name!']
+    },
+    lastname: {
+        type: String,
+        required: [true, 'Please tell us your last name!']
+    },
+    facebook: {
+        type: String,
+        // required: [true, 'Please tell us your last name!']
+    },
+    number: {
+        type: String,
+        // required: [true, 'Please tell us your last name!']
     },
     email: {
         type: String,
-        required: [true, 'Please provide your email'],
-        unique: true,
+        // required: [true, 'Please provide your email'],
+        // unique: true,
         lowercase: true,
         validate: [validator.isEmail, 'Please provide a valid email']
     },
@@ -19,10 +31,20 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: 'default.jpg'
     },
+    isFirst: {
+        type: String,
+        enum: ['client', 'vendor'],
+        default: 'client'
+    },
     role: {
         type: String,
-        enum: ['user', 'admin'],
-        default: 'user'
+        enum: ['client', 'vendor', 'admin', 'main_admin'],
+        default: 'client',
+        // select: false
+    },
+    codeConfirmation: {
+        type: Number,
+        select: false
     },
     password: {
         type: String,
@@ -32,6 +54,7 @@ const userSchema = new mongoose.Schema({
     },
     passwordConfirm: {
         type: String,
+        select: false,
         required: [true, 'Please confirm your password'],
         validate: {
             // This only works on CREATE and SAVE!!!
@@ -43,8 +66,7 @@ const userSchema = new mongoose.Schema({
     },
     createdAt: {
         type: Date,
-        default: Date.now(),
-        select: false
+        default: Date.now()
     },
     passwordChangedAt: Date,
     passwordResetToken: String,
@@ -53,6 +75,10 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: true,
         select: false
+    },
+    confirmed: {
+        type: Boolean,
+        default: false,
     }
 });
 
@@ -65,8 +91,12 @@ userSchema.pre('save', async function (next) {
     // Hash the password with cost of 12
     this.password = await bcrypt.hash(this.password, 12);
 
+    if (!this.email && !this.facebook && !this.number) {
+        throw new Error('Please provide your email or your phone.')
+    }
+
     // Delete passwordConfirm field
-    this.passwordConfirm = undefined;
+    // this.passwordConfirm = undefined;
     next();
 });
 
@@ -77,11 +107,11 @@ userSchema.pre('save', function (next) {
     next();
 });
 
-userSchema.pre(/^find/, function (next) {
-    // this points to the current query
-    this.find({ active: { $ne: false } });
-    next();
-});
+// userSchema.pre(/^find/, function (next) {
+//     // this points to the current query
+//     this.find({ active: { $ne: false } });
+//     next();
+// });
 
 userSchema.methods.correctPassword = async function (
     candidatePassword,

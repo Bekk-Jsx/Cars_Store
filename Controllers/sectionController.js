@@ -8,7 +8,7 @@ const factory = require("./factoryHandler");
 
 exports.getAllSection = factory.getAll(section);
 
-exports.createSection = factory.createOne(section);
+exports.createSection = factory.createOne(section, { user: true });
 
 exports.updateSection = factory.updateOne(section, "name", "desc", "slug");
 

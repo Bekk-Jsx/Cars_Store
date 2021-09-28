@@ -24,15 +24,18 @@ const sectionSchema = new mongoose.Schema(
             default: Date.now(),
             select: false
         },
-        // addedBy: {
-        //     type: mongoose.Schema.ObjectId,
-        //     ref: 'users',
-        //     required: [true, 'A user is needed to add a section.']
-        // }
+        addedBy: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'users',
+            required: [true, 'A user is needed to add a section.']
+        }
     }
 );
 
-
+sectionSchema.pre(/^find/, function (next) {
+    this.populate("addedBy");
+    next();
+});
 
 
 const Section = mongoose.model('section', sectionSchema);

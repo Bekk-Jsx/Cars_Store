@@ -26,8 +26,13 @@ exports.getAll = Model =>
     });
 
 
-exports.createOne = Model =>
+exports.createOne = (Model, params) =>
     catchAsync(async (req, res, next) => {
+
+        if (params.user) {
+            req.body.addedBy = req.user._id;
+        }
+
         const doc = await Model.create(req.body);
 
         res.status(201).json({
